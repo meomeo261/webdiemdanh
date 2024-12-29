@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Quản Lý Môn Học</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .boxes-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            justify-items: center;
+        }
+        .text-box {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            width: 80%;
+            gap: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .action-button {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .action-button img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" class="logo">
+            <h1>Website Quản Lý Môn Học</h1>
+        </div>
+    </header>
+
+    <!-- Navbar Section -->
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="danh-sach.html">Danh sách</a></li>
+            <li><a href="quan-ly.html">Quản lý</a></li>
+        </ul>
+    </nav>
+    <!-- Hình ảnh dưới Navbar với độ phân giải cao -->
+    <div class="image-container">
+        <img src="images/com.png" 
+             srcset="images/com@2x.png 2x, images/com@3x.png 3x" 
+             alt="Ảnh" class="image">
+    </div>
+
+    <!-- Dropdown Section -->
+    <div class="dropdown-container">
+        <div>
+            <label for="classDropdown">Chọn lớp:</label>
+            <select id="classDropdown" onchange="onClassSelect(this.value)">
+                <option value="">-- Chọn lớp --</option>
+            </select>
+        </div>
+        <div class="action-buttons">
+            <div class="action-button" onclick="addClass()">
+                <img src="D:/New folder/New folder (2)/images/+.png" alt="Add Class Icon">
+                <span>Thêm lớp</span>
+            </div>
+            <div class="action-button" onclick="editClass()">
+                <img src="D:/New folder/New folder (2)/images/logo.png" alt="Edit Class Icon">
+                <span>Sửa lớp</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boxes Section -->
+    <div class="boxes-container">
+        <div id="box1" class="text-box">Room</div>
+        <div id="box2" class="text-box">Code</div>
+        <div id="box3" class="text-box">Tutor</div>
+        <div id="box4" class="text-box">Time</div>
+        <div id="box5" class="text-box">Number of Students</div>
+        <div id="box6" class="text-box">Thời gian: 45p</div>
+    </div>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
+          authDomain: "rfid-8555d.firebaseapp.com",
+          databaseURL: "https://rfid-8555d-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "rfid-8555d",
+          storageBucket: "rfid-8555d.firebasestorage.app",
+          messagingSenderId: "464609357758",
+          appId: "1:464609357758:web:3a301b7ae7dff2ab3553ef",
+          measurementId: "G-F9B2JJ6VNV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Load classes into dropdown
+        function loadClasses() {
+          const dropdown = document.getElementById("classDropdown");
+          // Clear existing options
+          dropdown.innerHTML = '<option value="">-- Chọn lớp --</option>';
+
+          const dbRef = ref(database, "class");
+          get(dbRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                const classes = snapshot.val();
+                for (const className in classes) {
+                  const option = document.createElement("option");
+                  option.value = className;
+                  option.textContent = className;
+                  dropdown.appendChild(option);
+                }
+              } else {
+                console.log("No data available");
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading classes:", error);
+            });
+        }
+
+        // On class select, display room and code
+        window.onClassSelect = function (className) {
+          if (!className) return;
+
+          const dbRef = ref(database, `class/${className}`);
+          get(dbRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                const classData = snapshot.val();
+                document.getElementById("box1").textContent = `Room: ${classData.room}`;
+                document.getElementById("box2").textContent = `Code: ${classData.code}`;
+                document.getElementById("box3").textContent = `Tutor: ${classData.tutor}`;
+                document.getElementById("box4").textContent = `Time: ${classData.time}`;
+                document.getElementById("box5").textContent = `Number of Students: ${classData.numberstudent}`;
+                document.getElementById("box6").textContent = `Thời gian: ${classData.thoigian}`;
+              } else {
+                console.log("Class data not found");
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading class data:", error);
+            });
+        };
+
+        // Function to add a new class
+        window.addClass = function () {
+          const className = prompt("Nhập tên lớp:");
+          const room = prompt("Nhập phòng học:");
+          const code = prompt("Nhập mã lớp:");
+          const tutor = prompt("Nhập tên giảng viên:");
+          const time = prompt("Nhập thời gian học:");
+          const numberstudent = prompt("Nhập số lượng sinh viên:");
+          const thoigian = prompt("Nhập thời gian (vd: 45p):");
+
+          if (className && room && code && tutor && time && numberstudent && thoigian) {
+            const newClassRef = ref(database, `class/${className}`);
+            set(newClassRef, {
+              room,
+              code,
+              tutor,
+              time,
+              numberstudent,
+              thoigian
+            }).then(() => {
+              alert("Thêm lớp thành công!");
+              loadClasses();
+            }).catch((error) => {
+              console.error("Error adding class:", error);
+            });
+          } else {
+            alert("Vui lòng nhập đầy đủ thông tin.");
+          }
+        };
+
+        // Function to edit an existing class with validation and feature selection
+        window.editClass = function () {
+            const className = prompt("Nhập tên lớp cần sửa:");
+            if (!className) {
+                alert("Vui lòng nhập tên lớp cần sửa.");
+                return;
+            }
+
+            const classRef = ref(database, `class/${className}`);
+
+            // Check if the class exists
+            get(classRef)
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        alert("Lớp không tồn tại. Vui lòng nhập lại.");
+                        return;
+                    }
+
+                    const classData = snapshot.val();
+                    alert(`Thông tin lớp hiện tại:
+- Phòng: ${classData.room}
+- Mã lớp: ${classData.code}
+- Giảng viên: ${classData.tutor}
+- Thời gian học: ${classData.time}
+- Số lượng sinh viên: ${classData.numberstudent}
+- Thời gian: ${classData.thoigian}`);
+
+                    // Ask user which feature to edit
+                    const featureToEdit = prompt(`Bạn muốn sửa gì? 
+1. Phòng
+2. Mã lớp
+3. Giảng viên
+4. Thời gian học
+5. Số lượng sinh viên
+6. Thời gian`);
+
+                    let updatedData = {};
+                    switch (featureToEdit) {
+                        case "1":
+                            const newRoom = prompt("Nhập phòng học mới:");
+                            if (newRoom) updatedData.room = newRoom;
+                            break;
+                        case "2":
+                            const newCode = prompt("Nhập mã lớp mới:");
+                            if (newCode) updatedData.code = newCode;
+                            break;
+                        case "3":
+                            const newTutor = prompt("Nhập tên giảng viên mới:");
+                            if (newTutor) updatedData.tutor = newTutor;
+                            break;
+                        case "4":
+                            const newTime = prompt("Nhập thời gian học mới:");
+                            if (newTime) updatedData.time = newTime;
+                            break;
+                        case "5":
+                            const newNumberStudent = prompt("Nhập số lượng sinh viên mới:");
+                            if (newNumberStudent) updatedData.numberstudent = newNumberStudent;
+                            break;
+                        case "6":
+                            const newThoigian = prompt("Nhập thời gian mới (vd: 45p):");
+                            if (newThoigian) updatedData.thoigian = newThoigian;
+                            break;
+                        default:
+                            alert("Lựa chọn không hợp lệ.");
+                            return;
+                    }
+
+                    // Update the database
+                    if (Object.keys(updatedData).length > 0) {
+                        update(classRef, updatedData)
+                            .then(() => {
+                                alert("Sửa lớp thành công!");
+                                loadClasses();
+                            })
+                            .catch((error) => {
+                                console.error("Error editing class:", error);
+                            });
+                    } else {
+                        alert("Không có thay đổi nào được thực hiện.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error checking class:", error);
+                });
+        };
+
+        // Load classes when page loads
+        document.addEventListener("DOMContentLoaded", loadClasses);
+    </script>
+</body>
+</html>

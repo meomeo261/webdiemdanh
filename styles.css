@@ -1,0 +1,369 @@
+/* Reset margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Căn chỉnh chung cho body */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+/* Header */
+header {
+    background-color: white; /* Màu nền trắng cho header */
+    color: black; /* Màu chữ đen */
+    padding: 20px 0; /* Khoảng cách trên và dưới */
+    text-align: center; /* Căn giữa toàn bộ nội dung trong header */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ cho header */
+}
+
+/* Logo container */
+.logo-container {
+    display: flex;
+    justify-content: center; /* Căn giữa logo và tiêu đề */
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa logo và tiêu đề */
+}
+
+/* Logo */
+.logo {
+    width: 80px; /* Kích thước logo */
+    height: auto;
+}
+
+/* Tiêu đề website */
+h1 {
+    font-size: 36px;
+    color: black; /* Màu chữ đen */
+    margin: 0;
+}
+
+/* Responsive Design: Cân chỉnh logo và tiêu đề cho màn hình nhỏ */
+@media screen and (min-width: 769px) {
+    .box {
+        height: calc(40vh / 3); /* Tính toán chiều cao phù hợp */
+        width: calc(33.33% - 10px); /* Đặt chiều rộng ô */
+        font-size: 16px; /* Kích thước chữ mặc định */
+    }
+}
+
+/* Navbar */
+.navbar {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    background-color: #007BFF; /* Màu nền của navbar */
+    padding: 10px;
+}
+
+.navbar li {
+    margin: 0 15px; /* Khoảng cách giữa các mục */
+}
+
+.navbar a {
+    color: white; /* Màu chữ của các liên kết */
+    text-decoration: none; /* Loại bỏ gạch dưới */
+    font-size: 18px; /* Kích thước chữ */
+}
+
+.navbar a:hover {
+    color: #FFD700; /* Màu khi hover */
+}
+
+/* Hình ảnh */
+.image {
+    width: 60%; 
+    height: 40vh; 
+    object-fit: cover; 
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Các ô dưới ảnh */
+.boxes-container {
+    display: flex;
+    justify-content: space-between;
+    width: 60%; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+}
+
+.box {
+    background-color: #007BFF;
+    margin: 0 5px;
+    border-radius: 5px;
+    word-wrap: break-word; /* Bẻ dòng khi nội dung quá dài */
+    overflow-wrap: break-word; /* Hỗ trợ trình duyệt mới */
+    white-space: normal; /* Bật ngắt dòng tự động */
+    text-align: center; /* Căn giữa nội dung trong ô */
+    overflow: hidden; /* Ẩn nội dung nếu cần */
+    min-height: 50px; /* Đặt chiều cao tối thiểu thay vì cố định */
+    padding: 10px; /* Thêm padding để tạo không gian cho chữ */
+}
+
+/* Các ô thể hiện chữ dưới các ô trên */
+.text-boxes-container {
+    display: flex;
+    justify-content: space-between;
+    width: 60%; /* Chiều rộng của container bằng với ảnh */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px; /* Khoảng cách giữa các ô chữ và các ô trước đó */
+}
+
+.text-box {
+    height: 100px; /* Chiều cao của mỗi ô chữ */
+    width: calc(33.33% - 10px); /* Mỗi ô chiếm 1/3 chiều rộng của container */
+    background-color: white; /* Màu nền trắng */
+    margin: 0 5px; /* Khoảng cách giữa các ô */
+    border-radius: 5px; /* Bo góc các ô */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px; /* Kích thước chữ */
+    color: #333; /* Màu chữ */
+    text-align: center;
+    border: 1px solid #ddd; /* Thêm đường viền mờ để làm rõ ô */
+}
+
+/* Tùy chỉnh chữ trong các ô nếu cần */
+.text-box:hover {
+    background-color: #f0f0f0; /* Màu nền khi hover */
+}
+/* Bảng dữ liệu */
+.data-table {
+    width: 90%; /* Chiều rộng bảng */
+    margin: 20px auto; /* Căn giữa bảng */
+    border-collapse: collapse; /* Gộp các viền bảng */
+}
+
+.data-table th, .data-table td {
+    padding: 10px;
+    border: 1px solid #ddd; /* Đường viền cho các ô */
+    text-align: center; /* Căn giữa chữ trong các ô */
+}
+
+.data-table th {
+    background-color: #007BFF;
+    color: white; /* Màu chữ cho tiêu đề cột */
+    font-weight: bold;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Màu nền cho các hàng chẵn */
+}
+
+.data-table tr:hover {
+    background-color: #f0f0f0; /* Màu nền khi hover vào hàng */
+}
+
+/* Thêm responsive cho bảng khi màn hình nhỏ */
+@media screen and (max-width: 768px) {
+    .box {
+        width: 45%; /* Tăng chiều rộng để phù hợp màn hình nhỏ hơn */
+        font-size: 14px; /* Giảm kích thước chữ */
+        margin: 10px auto; /* Đặt ô cách đều và căn giữa */
+    }
+}
+
+
+
+.container {
+    display: flex;
+    padding: 20px;
+}
+
+/* Các ô bên trái */
+.left-boxes-container {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px; /* Khoảng cách giữa các ô */
+}
+
+.left-boxes-container .box {
+    background-color: #f1f1f1;
+    padding: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Các ô bên phải */
+.right-boxes-container {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    opacity: 0; /* Ẩn ban đầu */
+    transform: translateX(100%); /* Di chuyển ra ngoài */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.right-boxes-container.show {
+    opacity: 1; /* Hiển thị khi có class 'show' */
+    transform: translateX(0); /* Di chuyển vào vị trí ban đầu */
+}
+
+.right-boxes-container .box {
+    background-color: #f1f1f1;
+    padding: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    font-size: 18px;
+}
+/* Dropdown container */
+.dropdown-container {
+    width: 20%; /* Đặt chiều rộng cho dropdown */
+    margin: 10px auto; /* Căn giữa và thêm khoảng cách */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+/* Label cho dropdown */
+.dropdown-container label {
+    margin-right: 10px; /* Khoảng cách giữa label và dropdown */
+}
+
+/* Style cho dropdown */
+.dropdown-container select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+.left-boxes-container .button-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.left-boxes-container .button-container .add-button {
+    background-color: #007BFF; /* Màu xanh giống navbar */
+    color: white; /* Màu chữ trắng */
+    border: none;
+    padding: 8px 12px; /* Khoảng cách trong nút */
+    border-radius: 5px; /* Bo góc nút */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    font-size: 14px; /* Kích thước chữ */
+    transition: background-color 0.3s ease; /* Hiệu ứng hover */
+}
+
+.left-boxes-container .button-container .add-button:hover {
+    background-color: #0056b3; /* Màu xanh đậm hơn khi hover */
+}
+
+/* Style cho form thêm sinh viên */
+#add-student-form {
+    margin: 20px auto; /* Căn giữa form */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Màu nền nhẹ */
+    width: 50%; /* Chiều rộng vừa phải */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ */
+}
+
+#add-student-form input, #add-student-form button {
+    width: calc(100% - 24px); /* Giữ khoảng cách đều trong form */
+    margin: 10px 0;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#add-student-form button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#add-student-form button:hover {
+    background-color: #0056b3;
+}
+.add-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.add-icon {
+    width: 20px;
+    height: 20px;
+}
+#show-add-form-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/*#show-add-form-btn:hover {
+    background-color: #0056b3;
+}*/
+#show-add-form-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#show-add-form-btn:hover {
+    background-color: #0056b3;
+}
+
+.icon-button {
+    background: none; /* Loại bỏ nền */
+    border: none; /* Loại bỏ viền */
+    padding: 0; /* Xóa khoảng cách bên trong nút */
+    cursor: pointer; /* Con trỏ dạng pointer khi hover */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-logo {
+    width: 40px; /* Kích thước logo */
+    height: 40px;
+    display: block;
+}
+#add-student-form {
+    display: none; /* Ẩn form ban đầu */
+    position: relative; /* Đảm bảo form hiển thị đúng vị trí */
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 50%; /* Độ rộng hợp lý */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ */
+    z-index: 10; /* Đảm bảo form nằm trên cùng */
+}
+
+
+

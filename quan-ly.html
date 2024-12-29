@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-boxes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hidden-box-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+            display: none; /* Ẩn container */
+        }
+
+        .box {
+            width: 200px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #000;
+            font-size: 16px;
+            background-color: #f4f4f4;
+            color: #000;
+            cursor: pointer;
+        }
+
+        .add-class-form {
+            margin-top: 20px;
+        }
+
+        .add-class-form select {
+            width: 150px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .add-class-form button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" class="logo">
+            <h1>Website Quản Lý Môn Học</h1>
+        </div>
+    </header>
+
+    <!-- Navbar Section -->
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="danh-sach.html">Danh sách</a></li>
+            <li><a href="quan-ly.html">Quản lý</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Các ô bên trái -->
+        <div class="left-boxes-container" id="student-list">
+            <!-- Các ô sẽ được tạo động từ Firebase -->
+        </div>
+
+        <!-- Container hiển thị 6 ô -->
+        <div class="hidden-box-container" id="hidden-box-container">
+            <div class="box" id="box-1">Họ Tên: </div>
+            <div class="box" id="box-2">MSSV: </div>
+            <div class="box" id="box-3">ID Card: </div>
+            <div class="box" id="box-4">Số Điện Thoại: </div>
+            <div class="box" id="box-5">Email: </div>
+            <div class="box" id="box-6">Lớp: </div>
+        </div>
+
+        <!-- Form thêm/xóa lớp vào classjoin -->
+        <div class="add-class-form">
+            <select id="classname-select">
+                <option value="">Chọn lớp</option>
+            </select>
+            <button id="add-class-btn">Thêm lớp vào classjoin</button>
+            <button id="remove-class-btn">Xóa lớp khỏi classjoin</button>
+        </div>
+    </div>
+
+    <!-- Firebase CDN và Script -->
+    <script type="module">
+        // Import các hàm cần thiết từ Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
+            authDomain: "rfid-8555d.firebaseapp.com",
+            databaseURL: "https://rfid-8555d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rfid-8555d",
+            storageBucket: "rfid-8555d.firebaseapp.com",
+            messagingSenderId: "464609357758",
+            appId: "1:464609357758:web:3a301b7ae7dff2ab3553ef",
+            measurementId: "G-F9B2JJ6VNV"
+        };
+
+        // Khởi tạo Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Lưu trữ MSSV hiện tại và listener
+        let currentStudentId = null;
+        let currentStudentListener = null;
+
+        // Lấy danh sách lớp từ class/classname
+        const classRef = ref(db, 'class/');
+        const classnameSelect = document.getElementById('classname-select');
+        onValue(classRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const classData = snapshot.val();
+                classnameSelect.innerHTML = '<option value="">Chọn lớp</option>';
+                Object.keys(classData).forEach(classname => {
+                    const option = document.createElement('option');
+                    option.value = classname;
+                    option.textContent = classname;
+                    classnameSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Lấy tham chiếu đến dữ liệu sinh viên
+        const studentRef = ref(db, 'student/');
+        onValue(studentRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const studentsData = snapshot.val();
+                const studentListContainer = document.getElementById('student-list');
+                studentListContainer.innerHTML = '';
+
+                Object.keys(studentsData).forEach(studentId => {
+                    const student = studentsData[studentId];
+
+                    const studentBox = document.createElement('div');
+                    studentBox.classList.add('box');
+                    studentBox.textContent = student.MSSV || 'Không có MSSV';
+
+                    studentBox.addEventListener('click', () => {
+                        currentStudentId = studentId;
+                        const hiddenBoxContainer = document.getElementById('hidden-box-container');
+                        hiddenBoxContainer.style.display = 'grid'; // Hiển thị container
+
+                        // Nếu đã có listener, hủy bỏ để tránh xung đột
+                        if (currentStudentListener) {
+                            currentStudentListener();
+                        }
+
+                        // Thiết lập listener để tự động cập nhật
+                        const studentDetailsRef = ref(db, `student/${currentStudentId}`);
+                        currentStudentListener = onValue(studentDetailsRef, (snapshot) => {
+                            const student = snapshot.val();
+                            document.getElementById('box-1').textContent = `Họ Tên: ${student['Ho ten'] || 'Không có dữ liệu'}`;
+                            document.getElementById('box-2').textContent = `MSSV: ${student.MSSV || 'Không có dữ liệu'}`;
+                            document.getElementById('box-3').textContent = `ID Card: ${currentStudentId || 'Không có dữ liệu'}`;
+                            document.getElementById('box-4').textContent = `Số Điện Thoại: ${student.Phone || 'Không có dữ liệu'}`;
+                            document.getElementById('box-5').textContent = `Email: ${student.gmail || 'Không có dữ liệu'}`;
+                            const classes = student.classjoin ? Object.keys(student.classjoin).join(', ') : 'Không có dữ liệu';
+                            document.getElementById('box-6').textContent = `Lớp: ${classes}`;
+                        });
+                    });
+
+                    studentListContainer.appendChild(studentBox);
+                });
+            }
+        });
+
+        // Thêm lớp vào classjoin
+        document.getElementById('add-class-btn').addEventListener('click', () => {
+            const classname = classnameSelect.value.trim();
+            if (!classname) {
+                alert("Vui lòng chọn một lớp!");
+                return;
+            }
+            if (!currentStudentId) {
+                alert("Vui lòng chọn một sinh viên trước!");
+                return;
+            }
+
+            const studentClassRef = ref(db, `student/${currentStudentId}/classjoin`);
+            onValue(studentClassRef, (snapshot) => {
+                const classData = snapshot.val();
+                if (classData && classData[classname]) {
+                    alert(`Lớp ${classname} đã tồn tại!`);
+                    return;
+                }
+
+                const newClassRef = ref(db, `student/${currentStudentId}/classjoin/${classname}`);
+                update(newClassRef, { added: true })
+                    .then(() => alert(`Đã thêm lớp ${classname} vào classjoin!`))
+                    .catch((error) => console.error("Lỗi khi thêm lớp:", error));
+            }, { onlyOnce: true });
+        });
+
+        // Xóa lớp khỏi classjoin
+        document.getElementById('remove-class-btn').addEventListener('click', () => {
+            const classname = classnameSelect.value.trim();
+            if (!classname) {
+                alert("Vui lòng chọn một lớp!");
+                return;
+            }
+            if (!currentStudentId) {
+                alert("Vui lòng chọn một sinh viên trước!");
+                return;
+            }
+
+            const studentClassRef = ref(db, `student/${currentStudentId}/classjoin`);
+            onValue(studentClassRef, (snapshot) => {
+                const classData = snapshot.val();
+                if (!classData || !classData[classname]) {
+                    alert(`Lớp ${classname} không tồn tại để xóa!`);
+                    return;
+                }
+
+                const deleteClassRef = ref(db, `student/${currentStudentId}/classjoin/${classname}`);
+                remove(deleteClassRef)
+                    .then(() => alert(`Đã xóa lớp ${classname} khỏi classjoin!`))
+                    .catch((error) => console.error("Lỗi khi xóa lớp:", error));
+            }, { onlyOnce: true });
+        });
+    </script>
+</body>
+</html>

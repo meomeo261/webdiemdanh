@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" class="logo">
+            <h1>Website Quản Lý Môn Học</h1>
+        </div>
+    </header>
+
+    <!-- Navbar Section -->
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="danh-sach.html">Danh sách</a></li>
+            <li><a href="quan-ly.html">Quản lý</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Các ô bên trái (danh sách tên sinh viên) -->
+        <div class="left-boxes-container" id="student-list">
+            <!-- Các ô sẽ được tạo động từ Firebase -->
+        </div>
+
+        <!-- Các ô bên phải (thông tin chi tiết) -->
+        <div class="right-boxes-container">
+            <div class="box" id="name">Tên: </div>
+            <div class="box" id="id">ID: </div>
+            <div class="box" id="phone">Số điện thoại: </div>
+            <div class="box" id="mail">Email: </div>
+        </div>
+    </div>
+
+    <!-- Firebase CDN và Script để lấy dữ liệu -->
+    <script type="module">
+        // Import các hàm cần thiết từ Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
+            authDomain: "rfid-8555d.firebaseapp.com",
+            databaseURL: "https://rfid-8555d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rfid-8555d",
+            storageBucket: "rfid-8555d.firebasestorage.app",
+            messagingSenderId: "464609357758",
+            appId: "1:464609357758:web:3a301b7ae7dff2ab3553ef",
+            measurementId: "G-F9B2JJ6VNV"
+        };
+
+        // Khởi tạo Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Lấy tham chiếu đến dữ liệu sinh viên
+        const studentRef = ref(db, 'student/');
+
+        // Lấy dữ liệu danh sách sinh viên từ Firebase
+        get(studentRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const studentsData = snapshot.val(); // Dữ liệu tất cả sinh viên từ Firebase
+                
+                // Lấy container để hiển thị danh sách sinh viên
+                const studentListContainer = document.getElementById('student-list');
+                
+                // Duyệt qua tất cả các sinh viên và tạo các ô tương ứng
+                Object.keys(studentsData).forEach(studentId => {
+                    const student = studentsData[studentId];
+                    
+                    // Tạo một ô mới cho mỗi sinh viên
+                    const studentBox = document.createElement('div');
+                    studentBox.classList.add('box');
+                    studentBox.setAttribute('data-id', studentId);
+                    studentBox.textContent = student.name; // Hiển thị tên sinh viên
+
+                    // Thêm sự kiện click để hiển thị thông tin sinh viên
+                    studentBox.addEventListener('click', () => {
+                        // Lấy thông tin chi tiết của sinh viên
+                        document.getElementById('name').textContent = `Tên: ${student.name || 'Không có dữ liệu'}`;
+                        document.getElementById('id').textContent = `ID: ${student.id || 'Không có dữ liệu'}`;
+                        document.getElementById('phone').textContent = `Số điện thoại: ${student.phone || 'Không có dữ liệu'}`;
+                        document.getElementById('mail').textContent = `Email: ${student.mail || 'Không có dữ liệu'}`;
+                        
+                        // Hiển thị các ô bên phải
+                        document.querySelector('.right-boxes-container').classList.add('show');
+                    });
+
+                    // Thêm ô sinh viên vào container
+                    studentListContainer.appendChild(studentBox);
+                });
+            } else {
+                console.log("Không có dữ liệu sinh viên.");
+            }
+        }).catch((error) => {
+            console.error("Lỗi khi lấy dữ liệu từ Firebase:", error);
+        });
+    </script>
+</body>
+</html>
