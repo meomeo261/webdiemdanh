@@ -34,6 +34,8 @@
             <thead>
                 <tr>
                     <th>STT</th>
+                    <th>Ngày</th>
+                    <th>Lớp</th>
                     <th>ID</th>
                     <th>Tên</th>
                     <th>MSSV</th>
@@ -49,7 +51,7 @@
     <!-- Firebase CDN và Script để lấy dữ liệu -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
@@ -68,21 +70,36 @@
 
         let globalStt = 1;
 
-        onChildAdded(rootRef, (snapshot) => {
-            const userId = snapshot.key;
+        // Lấy dữ liệu từ cấu trúc mới
+        onValue(rootRef, (snapshot) => {
             const data = snapshot.val();
-
             const tableBody = document.querySelector("#data-table tbody");
-            const tr = document.createElement("tr");
+            tableBody.innerHTML = ""; // Xóa dữ liệu cũ trước khi chèn mới
 
-            tr.innerHTML = `
-                <td>${globalStt++}</td>
-                <td>${userId || 'N/A'}</td>
-                <td>${data['Ho ten'] || 'N/A'}</td>
-                <td>${data['MSSV'] || 'N/A'}</td>
-                <td>${data['Timeattend'] || 'N/A'}</td>
-            `;
-            tableBody.appendChild(tr);
+            Object.keys(data).forEach((time) => {
+                const classes = data[time];
+                Object.keys(classes).forEach((classname) => {
+                    const students = classes[classname];
+                    Object.keys(students).forEach((id) => {
+                        const student = students[id];
+
+                        // Chuyển đổi định dạng ngày
+                        const formattedDate = time.split("-").reverse().join("/");
+
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${globalStt++}</td>
+                            <td>${formattedDate}</td>
+                            <td>${classname}</td>
+                            <td>${id || 'N/A'}</td>
+                            <td>${student['Ho ten'] || 'N/A'}</td>
+                            <td>${student['MSSV'] || 'N/A'}</td>
+                            <td>${student['Timeattend'] || 'N/A'}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                });
+            });
         });
     </script>
 </body>
