@@ -122,9 +122,7 @@
         // Load classes into dropdown
         function loadClasses() {
           const dropdown = document.getElementById("classDropdown");
-          // Clear existing options
           dropdown.innerHTML = '<option value="">-- Chọn lớp --</option>';
-
           const dbRef = ref(database, "class");
           get(dbRef)
             .then((snapshot) => {
@@ -145,7 +143,7 @@
             });
         }
 
-        // On class select, display room and code
+        // On class select
         window.onClassSelect = function (className) {
           if (!className) return;
 
@@ -172,117 +170,133 @@
         // Function to add a new class
         window.addClass = function () {
           const className = prompt("Nhập tên lớp:");
-          const room = prompt("Nhập phòng học:");
-          const code = prompt("Nhập mã lớp:");
-          const tutor = prompt("Nhập tên giảng viên:");
-          const time = prompt("Nhập thời gian học:");
-          const numberstudent = prompt("Nhập số lượng sinh viên:");
-          const thoigian = prompt("Nhập thời gian (vd: 45p):");
-
-          if (className && room && code && tutor && time && numberstudent && thoigian) {
-            const newClassRef = ref(database, `class/${className}`);
-            set(newClassRef, {
-              room,
-              code,
-              tutor,
-              time,
-              numberstudent,
-              thoigian
-            }).then(() => {
-              alert("Thêm lớp thành công!");
-              loadClasses();
-            }).catch((error) => {
-              console.error("Error adding class:", error);
-            });
-          } else {
-            alert("Vui lòng nhập đầy đủ thông tin.");
+          if (!className) {
+            alert("Vui lòng nhập tên lớp.");
+            return;
           }
+
+          const classRef = ref(database, `class/${className}`);
+          get(classRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                alert(`Lớp "${className}" đã tồn tại. Vui lòng nhập tên lớp khác.`);
+                return;
+              }
+
+              const room = prompt("Nhập phòng học:");
+              const code = prompt("Nhập mã lớp:");
+              const tutor = prompt("Nhập tên giảng viên:");
+              const time = prompt("Nhập thời gian học:");
+              const numberstudent = prompt("Nhập số lượng sinh viên:");
+              const thoigian = prompt("Nhập thời gian (vd: 45p):");
+
+              if (room && code && tutor && time && numberstudent && thoigian) {
+                set(classRef, {
+                  room,
+                  code,
+                  tutor,
+                  time,
+                  numberstudent,
+                  thoigian,
+                })
+                  .then(() => {
+                    alert("Thêm lớp thành công!");
+                    loadClasses();
+                  })
+                  .catch((error) => {
+                    console.error("Lỗi khi thêm lớp:", error);
+                  });
+              } else {
+                alert("Vui lòng nhập đầy đủ thông tin.");
+              }
+            })
+            .catch((error) => {
+              console.error("Lỗi khi kiểm tra lớp:", error);
+            });
         };
 
-        // Function to edit an existing class with validation and feature selection
+        // Function to edit an existing class
         window.editClass = function () {
-            const className = prompt("Nhập tên lớp cần sửa:");
-            if (!className) {
-                alert("Vui lòng nhập tên lớp cần sửa.");
+          const className = prompt("Nhập tên lớp cần sửa:");
+          if (!className) {
+            alert("Vui lòng nhập tên lớp cần sửa.");
+            return;
+          }
+
+          const classRef = ref(database, `class/${className}`);
+          get(classRef)
+            .then((snapshot) => {
+              if (!snapshot.exists()) {
+                alert("Lớp không tồn tại. Vui lòng nhập lại.");
                 return;
-            }
+              }
 
-            const classRef = ref(database, `class/${className}`);
+              const classData = snapshot.val();
+              const featureToEdit = prompt(
+                `Thông tin lớp hiện tại:
+Phòng: ${classData.room}
+Mã lớp: ${classData.code}
+Giảng viên: ${classData.tutor}
+Thời gian học: ${classData.time}
+Số lượng sinh viên: ${classData.numberstudent}
+Thời gian: ${classData.thoigian}
 
-            // Check if the class exists
-            get(classRef)
-                .then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        alert("Lớp không tồn tại. Vui lòng nhập lại.");
-                        return;
-                    }
-
-                    const classData = snapshot.val();
-                    alert(`Thông tin lớp hiện tại:
-- Phòng: ${classData.room}
-- Mã lớp: ${classData.code}
-- Giảng viên: ${classData.tutor}
-- Thời gian học: ${classData.time}
-- Số lượng sinh viên: ${classData.numberstudent}
-- Thời gian: ${classData.thoigian}`);
-
-                    // Ask user which feature to edit
-                    const featureToEdit = prompt(`Bạn muốn sửa gì? 
+Bạn muốn sửa gì?
 1. Phòng
 2. Mã lớp
 3. Giảng viên
 4. Thời gian học
 5. Số lượng sinh viên
-6. Thời gian`);
+6. Thời gian`
+              );
 
-                    let updatedData = {};
-                    switch (featureToEdit) {
-                        case "1":
-                            const newRoom = prompt("Nhập phòng học mới:");
-                            if (newRoom) updatedData.room = newRoom;
-                            break;
-                        case "2":
-                            const newCode = prompt("Nhập mã lớp mới:");
-                            if (newCode) updatedData.code = newCode;
-                            break;
-                        case "3":
-                            const newTutor = prompt("Nhập tên giảng viên mới:");
-                            if (newTutor) updatedData.tutor = newTutor;
-                            break;
-                        case "4":
-                            const newTime = prompt("Nhập thời gian học mới:");
-                            if (newTime) updatedData.time = newTime;
-                            break;
-                        case "5":
-                            const newNumberStudent = prompt("Nhập số lượng sinh viên mới:");
-                            if (newNumberStudent) updatedData.numberstudent = newNumberStudent;
-                            break;
-                        case "6":
-                            const newThoigian = prompt("Nhập thời gian mới (vd: 45p):");
-                            if (newThoigian) updatedData.thoigian = newThoigian;
-                            break;
-                        default:
-                            alert("Lựa chọn không hợp lệ.");
-                            return;
-                    }
+              let updatedData = {};
+              switch (featureToEdit) {
+                case "1":
+                  const newRoom = prompt("Nhập phòng học mới:");
+                  if (newRoom) updatedData.room = newRoom;
+                  break;
+                case "2":
+                  const newCode = prompt("Nhập mã lớp mới:");
+                  if (newCode) updatedData.code = newCode;
+                  break;
+                case "3":
+                  const newTutor = prompt("Nhập tên giảng viên mới:");
+                  if (newTutor) updatedData.tutor = newTutor;
+                  break;
+                case "4":
+                  const newTime = prompt("Nhập thời gian học mới:");
+                  if (newTime) updatedData.time = newTime;
+                  break;
+                case "5":
+                  const newNumberStudent = prompt("Nhập số lượng sinh viên mới:");
+                  if (newNumberStudent) updatedData.numberstudent = newNumberStudent;
+                  break;
+                case "6":
+                  const newThoigian = prompt("Nhập thời gian mới (vd: 45p):");
+                  if (newThoigian) updatedData.thoigian = newThoigian;
+                  break;
+                default:
+                  alert("Lựa chọn không hợp lệ.");
+                  return;
+              }
 
-                    // Update the database
-                    if (Object.keys(updatedData).length > 0) {
-                        update(classRef, updatedData)
-                            .then(() => {
-                                alert("Sửa lớp thành công!");
-                                loadClasses();
-                            })
-                            .catch((error) => {
-                                console.error("Error editing class:", error);
-                            });
-                    } else {
-                        alert("Không có thay đổi nào được thực hiện.");
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error checking class:", error);
-                });
+              if (Object.keys(updatedData).length > 0) {
+                update(classRef, updatedData)
+                  .then(() => {
+                    alert("Sửa lớp thành công!");
+                    loadClasses();
+                  })
+                  .catch((error) => {
+                    console.error("Error editing class:", error);
+                  });
+              } else {
+                alert("Không có thay đổi nào được thực hiện.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking class:", error);
+            });
         };
 
         // Load classes when page loads
