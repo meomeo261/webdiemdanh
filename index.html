@@ -6,6 +6,13 @@
     <title>Website Quản Lý Môn Học</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+       body {
+            margin: 0;
+            padding: 0;
+        }
+        .hidden {
+            display: none;
+        }
         .boxes-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -42,9 +49,90 @@
             height: 30px;
             margin-right: 10px;
         }
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .login-box button:hover {
+            background-color: #218838;
+        }
+        #studentListContainer {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #studentList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #studentList li {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .action-buttons {
+    display: flex;
+    justify-content: center; /* Căn giữa ngang */
+    align-items: center; /* Căn giữa dọc */
+    gap: 20px; /* Khoảng cách giữa các nút */
+    margin-top: 20px; /* Khoảng cách giữa dropdown và nút */
+}
+
     </style>
 </head>
 <body>
+   <!-- Form đăng nhập -->
+   <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h2>Đăng Nhập</h2>
+            <input type="text" id="username" placeholder="Tên đăng nhập">
+            <input type="password" id="password" placeholder="Mật khẩu">
+            <button onclick="login()">Đăng Nhập</button>
+            <p id="loginMessage" style="color:red;"></p>
+        </div>
+</div>
+
     <!-- Header Section -->
     <header>
         <div class="logo-container">
@@ -59,6 +147,7 @@
             <li><a href="index.html">Trang chủ</a></li>
             <li><a href="danh-sach.html">Danh sách</a></li>
             <li><a href="quan-ly.html">Quản lý</a></li>
+            <li><a href="taikhoan.html">Quản lý</a></li>
         </ul>
     </nav>
     <!-- Hình ảnh dưới Navbar với độ phân giải cao -->
@@ -67,37 +156,50 @@
              srcset="images/com@2x.png 2x, images/com@3x.png 3x" 
              alt="Ảnh" class="image">
     </div>
-
+    
+  
     <!-- Dropdown Section -->
     <div class="dropdown-container">
-        <div>
-            <label for="classDropdown">Chọn lớp:</label>
-            <select id="classDropdown" onchange="onClassSelect(this.value)">
-                <option value="">-- Chọn lớp --</option>
-            </select>
-        </div>
-        <div class="action-buttons">
-            <div class="action-button" onclick="addClass()">
-                <img src="/webdiemdanh/images/+.png" alt="Add Class Icon">
-                <span>Thêm lớp</span>
-            </div>
-            <div class="action-button" onclick="editClass()">
-                <img src="/webdiemdanh/images/Logo.png" alt="Edit Class Icon">
-                <span>Sửa lớp</span>
-            </div>
-        </div>
+      <div style="text-align: center;">
+          <label for="classDropdown">Chọn lớp:</label>
+          <select id="classDropdown" onchange="onClassSelect(this.value)">
+              <option value="">-- Chọn lớp --</option>
+          </select>
+      </div>
+  </div>
+  <div class="action-buttons">
+    <div class="action-button" onclick="addClass()">
+        <img src="/webdiemdanh/images/+.png" alt="Add Class Icon">
+        <span>Thêm lớp</span>
+    </div>
+    <div class="action-button" onclick="editClass()">
+        <img src="/webdiemdanh/images/Logo.png" alt="Edit Class Icon">
+        <span>Sửa lớp</span>
+    </div>
+    <div class="action-button" onclick="viewClassList()">
+        <img src="/webdiemdanh/images/list.png" alt="View Class List Icon">
+        <span>Xem danh sách lớp</span>
+    </div>
+</div>
     </div>
 
     <!-- Boxes Section -->
     <div class="boxes-container">
-        <div id="box1" class="text-box">Room</div>
-        <div id="box2" class="text-box">Code</div>
-        <div id="box3" class="text-box">Tutor</div>
-        <div id="box4" class="text-box">Time</div>
-        <div id="box5" class="text-box">Number of Students</div>
-        <div id="box6" class="text-box">Thời gian: 45p</div>
+      <div id="box1" class="text-box">Room</div>
+      <div id="box2" class="text-box">Code</div>
+      <div id="box3" class="text-box">Tutor</div>
+      <div id="box4" class="text-box">Time</div>
+      <div id="box5" class="text-box">Number of Students</div>
+      <div id="box6" class="text-box">Time in week</div>
+  </div>
+    <div id="classListContainer" class="hidden">
+      <h2>Danh sách lớp</h2>
+      <ul id="classList"></ul>
     </div>
-
+    <div id="studentListContainer" class="hidden">
+      <h2>Danh sách sinh viên</h2>
+      <ul id="studentList"></ul>
+  </div>
     <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -118,53 +220,143 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        
+        // Kiểm tra trạng thái đăng nhập
+        window.addEventListener("load", function() {
+            const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+            if (isLoggedIn === "true") {
+                document.getElementById("loginContainer").style.display = "none";
+            } else {
+                sessionStorage.clear();
+            }
+        });
+        window.login = function () {
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const loginMessage = document.getElementById("loginMessage");
 
+        const tutorRef = ref(database, `Tutor`);
+        get(tutorRef).then((snapshot) => {
+          if (snapshot.exists()) {
+            const tutors = snapshot.val();
+            let isLoggedIn = false;
+
+            // Duyệt qua tất cả tài khoản trong Tutor
+            for (const key in tutors) {
+                const user = tutors[key];
+                if (user.acc === username && user.pass === password) {
+                    isLoggedIn = true;
+                    break;
+                }
+            }
+
+            if (isLoggedIn) {
+                document.getElementById("loginContainer").style.display = "none";
+                sessionStorage.setItem("isLoggedIn", "true");
+            } else {
+                loginMessage.textContent = "Tên đăng nhập hoặc mật khẩu không đúng.";
+            }
+        } else {
+            loginMessage.textContent = "Không có dữ liệu người dùng.";
+        }
+    }).catch((error) => {
+        console.error("Lỗi khi đăng nhập:", error);
+        loginMessage.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+    });
+}
+let selectedClass = "";
         // Load classes into dropdown
         function loadClasses() {
-          const dropdown = document.getElementById("classDropdown");
-          dropdown.innerHTML = '<option value="">-- Chọn lớp --</option>';
-          const dbRef = ref(database, "class");
-          get(dbRef)
-            .then((snapshot) => {
-              if (snapshot.exists()) {
-                const classes = snapshot.val();
-                for (const className in classes) {
-                  const option = document.createElement("option");
-                  option.value = className;
-                  option.textContent = className;
-                  dropdown.appendChild(option);
-                }
-              } else {
-                console.log("No data available");
-              }
-            })
-            .catch((error) => {
-              console.error("Error loading classes:", error);
-            });
+            const dropdown = document.getElementById("classDropdown");
+            dropdown.innerHTML = '<option value="">-- Chọn lớp --</option>';
+            
+            const dbRef = ref(database, "class");
+            get(dbRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const classes = snapshot.val();
+                        for (const className in classes) {
+                            const option = document.createElement("option");
+                            option.value = className;
+                            option.textContent = className;
+                            dropdown.appendChild(option);
+                        }
+                    } else {
+                        console.log("Không có dữ liệu lớp học.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Lỗi khi tải danh sách lớp:", error);
+                });
         }
 
-        // On class select
+        // Khi chọn lớp, hiển thị thông tin và lưu lớp được chọn
         window.onClassSelect = function (className) {
-          if (!className) return;
+            if (!className) return;
 
-          const dbRef = ref(database, `class/${className}`);
-          get(dbRef)
-            .then((snapshot) => {
-              if (snapshot.exists()) {
-                const classData = snapshot.val();
-                document.getElementById("box1").textContent = `Room: ${classData.room}`;
-                document.getElementById("box2").textContent = `Code: ${classData.code}`;
-                document.getElementById("box3").textContent = `Tutor: ${classData.tutor}`;
-                document.getElementById("box4").textContent = `Time: ${classData.time}`;
-                document.getElementById("box5").textContent = `Number of Students: ${classData.numberstudent}`;
-                document.getElementById("box6").textContent = `Thời gian: ${classData.thoigian}`;
-              } else {
-                console.log("Class data not found");
-              }
-            })
-            .catch((error) => {
-              console.error("Error loading class data:", error);
-            });
+            selectedClass = className;
+
+            const dbRef = ref(database, `class/${className}`);
+            get(dbRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const classData = snapshot.val();
+                        document.getElementById("box1").textContent = `Room: ${classData.room}`;
+                        document.getElementById("box2").textContent = `Code: ${classData.code}`;
+                        document.getElementById("box3").textContent = `Tutor: ${classData.tutor}`;
+                        document.getElementById("box4").textContent = `Time: ${classData.time}`;
+                        document.getElementById("box5").textContent = `Number of Students: ${classData.numberstudent}`;
+                        document.getElementById("box6").textContent = `Thời gian: ${classData.day}`;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Lỗi khi tải thông tin lớp:", error);
+                });
+        };
+        // Function to view students in a class
+        function viewStudents(className) {
+    const studentListContainer = document.getElementById("studentListContainer");
+    const studentList = document.getElementById("studentList");
+
+    // Xóa danh sách sinh viên trước khi thêm dữ liệu mới
+    studentList.innerHTML = "";
+
+    const studentRef = ref(database, "student");
+    get(studentRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const students = snapshot.val();
+                const studentsInClass = Object.values(students).filter(student => student["classjoin"]?.[className]?.added);
+
+                if (studentsInClass.length > 0) {
+                    studentsInClass.forEach((student, index) => {
+                        const li = document.createElement("li");
+                        li.textContent = `${index + 1}. ${student["Ho ten"]} - MSSV: ${student["MSSV"]} - Email: ${student["Gmail"] || "undefined"} - SĐT: ${student["Phone"]}`;
+                        studentList.appendChild(li);
+                    });
+
+                    studentListContainer.classList.remove("hidden");
+                } else {
+                    alert(`Không có sinh viên trong lớp ${className}.`);
+                    studentListContainer.classList.add("hidden");
+                }
+            } else {
+                alert(`Không có dữ liệu sinh viên.`);
+                studentListContainer.classList.add("hidden");
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi khi tải danh sách sinh viên:", error);
+        });
+}
+
+        // View class list
+        window.viewClassList = function () {
+            if (!selectedClass) {
+                alert("Vui lòng chọn lớp trước khi xem danh sách sinh viên.");
+                return;
+            }
+            viewStudents(selectedClass);
         };
 
         // Function to add a new class
@@ -188,16 +380,16 @@
               const tutor = prompt("Nhập tên giảng viên:");
               const time = prompt("Nhập thời gian học:");
               const numberstudent = prompt("Nhập số lượng sinh viên:");
-              const thoigian = prompt("Nhập thời gian (vd: 45p):");
+              const day = prompt("Ngay trong tuan :");
 
-              if (room && code && tutor && time && numberstudent && thoigian) {
+              if (room && code && tutor && time && numberstudent && day) {
                 set(classRef, {
                   room,
                   code,
                   tutor,
                   time,
                   numberstudent,
-                  thoigian,
+                  day,
                 })
                   .then(() => {
                     alert("Thêm lớp thành công!");
@@ -239,7 +431,7 @@ Mã lớp: ${classData.code}
 Giảng viên: ${classData.tutor}
 Thời gian học: ${classData.time}
 Số lượng sinh viên: ${classData.numberstudent}
-Thời gian: ${classData.thoigian}
+day: ${classData.day}
 
 Bạn muốn sửa gì?
 1. Phòng
@@ -247,7 +439,7 @@ Bạn muốn sửa gì?
 3. Giảng viên
 4. Thời gian học
 5. Số lượng sinh viên
-6. Thời gian`
+6. day`
               );
 
               let updatedData = {};
@@ -273,8 +465,8 @@ Bạn muốn sửa gì?
                   if (newNumberStudent) updatedData.numberstudent = newNumberStudent;
                   break;
                 case "6":
-                  const newThoigian = prompt("Nhập thời gian mới (vd: 45p):");
-                  if (newThoigian) updatedData.thoigian = newThoigian;
+                  const newday = prompt("Nhập ngay trong tuan moi :");
+                  if (newday) updatedData.day = newday;
                   break;
                 default:
                   alert("Lựa chọn không hợp lệ.");

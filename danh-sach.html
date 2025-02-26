@@ -5,6 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh Sách Điểm Danh</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.data-table th {
+    background-color: #4CAF50; /* Màu nền tiêu đề bảng */
+    color: white; /* Màu chữ tiêu đề */
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    color: #333; /* Màu chữ trong bảng */
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Màu nền hàng chẵn */
+}
+
+.data-table tr:nth-child(odd) {
+    background-color: #ffffff; /* Màu nền hàng lẻ */
+}
+
+.data-table tr:hover {
+    background-color: #f1f1f1; /* Màu nền khi hover */
+}
+
+.data-table td, .data-table th {
+    font-size: 14px; /* Kích thước chữ */
+}
+
+.filter-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.filter-container select {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+    </style>
 </head>
 <body>
     <!-- Header Section -->
@@ -21,6 +77,7 @@
             <li><a href="index.html">Trang chủ</a></li>
             <li><a href="danh-sach.html">Danh sách</a></li>
             <li><a href="quan-ly.html">Quản lý</a></li>
+            <li><a href="taikhoan.html">Quản lý</a></li>
         </ul>
     </nav>
 
@@ -28,6 +85,15 @@
     <div class="content">
         <h2>Danh sách điểm danh</h2>
         <p>Danh sách điểm danh của các sinh viên:</p>
+
+        <!-- Bộ lọc -->
+        <div class="filter-container">
+            <label for="classFilter">Lọc theo lớp:</label>
+            <select id="classFilter">
+                <option value="all">Tất cả lớp</option>
+                <!-- Các lớp sẽ được chèn động vào đây -->
+            </select>
+        </div>
 
         <!-- Bảng dữ liệu -->
         <table class="data-table" id="data-table">
@@ -40,6 +106,7 @@
                     <th>Tên</th>
                     <th>MSSV</th>
                     <th>Thời gian điểm danh</th>
+                    <th>Số lần điểm danh</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,14 +118,14 @@
     <!-- Firebase CDN và Script để lấy dữ liệu -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
             authDomain: "rfid-8555d.firebaseapp.com",
             databaseURL: "https://rfid-8555d-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "rfid-8555d",
-            storageBucket: "rfid-8555d.firebasestorage.app",
+            storageBucket: "rfid-8555d.appspot.com",
             messagingSenderId: "464609357758",
             appId: "1:464609357758:web:3a301b7ae7dff2ab3553ef",
             measurementId: "G-F9B2JJ6VNV"
@@ -68,24 +135,83 @@
         const db = getDatabase(app);
         const rootRef = ref(db, "atten");
 
+        const classFilter = document.getElementById("classFilter");
+        const tableBody = document.querySelector("#data-table tbody");
+
         let globalStt = 1;
 
-        // Lấy dữ liệu từ cấu trúc mới
+        // Tải dữ liệu từ Firebase và hiển thị
         onValue(rootRef, (snapshot) => {
-            const data = snapshot.val();
-            const tableBody = document.querySelector("#data-table tbody");
-            tableBody.innerHTML = ""; // Xóa dữ liệu cũ trước khi chèn mới
+    const data = snapshot.val();
+    const attendanceData = {}; // Dữ liệu điểm danh theo lớp và sinh viên
 
-            Object.keys(data).forEach((time) => {
-                const classes = data[time];
-                Object.keys(classes).forEach((classname) => {
-                    const students = classes[classname];
-                    Object.keys(students).forEach((id) => {
-                        const student = students[id];
+    // Xóa dữ liệu cũ
+    tableBody.innerHTML = "";
+    classFilter.innerHTML = '<option value="all">Tất cả lớp</option>';
 
-                        // Chuyển đổi định dạng ngày
-                        const formattedDate = time.split("-").reverse().join("/");
+    // Duyệt qua dữ liệu từ Firebase
+    Object.keys(data).forEach((time) => {
+        const classes = data[time];
+        Object.keys(classes).forEach((classname) => {
+            // Thêm lớp vào bộ lọc nếu chưa tồn tại
+            if (!Array.from(classFilter.options).some(option => option.value === classname)) {
+                const option = document.createElement("option");
+                option.value = classname;
+                option.textContent = classname;
+                classFilter.appendChild(option);
+            }
 
+            const students = classes[classname];
+            Object.keys(students).forEach((id) => {
+                const student = students[id];
+
+                // Tính số lần điểm danh cho từng lớp
+                if (!attendanceData[classname]) {
+                    attendanceData[classname] = {};
+                }
+
+                if (!attendanceData[classname][id]) {
+                    attendanceData[classname][id] = { count: 0, name: student['Ho ten'], mssv: student['MSSV'] };
+                }
+
+                attendanceData[classname][id].count++;
+
+                // Chuyển đổi định dạng ngày
+                const formattedDate = time.split("-").reverse().join("/");
+
+                // Kiểm tra bộ lọc lớp
+                if (classFilter.value === "all" || classFilter.value === classname) {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${globalStt++}</td>
+                        <td>${formattedDate}</td>
+                        <td>${classname}</td>
+                        <td>${id || 'N/A'}</td>
+                        <td>${student['Ho ten'] || 'N/A'}</td>
+                        <td>${student['MSSV'] || 'N/A'}</td>
+                        <td>${student['Timeattend'] || 'N/A'}</td>
+                        <td>${attendanceData[classname][id].count}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
+            });
+        });
+    });
+
+    // Lọc lại dữ liệu khi chọn lớp
+    classFilter.onchange = () => {
+        globalStt = 1; // Reset STT
+        tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
+        Object.keys(data).forEach((time) => {
+            const classes = data[time];
+            Object.keys(classes).forEach((classname) => {
+                const students = classes[classname];
+                Object.keys(students).forEach((id) => {
+                    const student = students[id];
+                    const formattedDate = time.split("-").reverse().join("/");
+
+                    if (classFilter.value === "all" || classFilter.value === classname) {
                         const tr = document.createElement("tr");
                         tr.innerHTML = `
                             <td>${globalStt++}</td>
@@ -95,12 +221,15 @@
                             <td>${student['Ho ten'] || 'N/A'}</td>
                             <td>${student['MSSV'] || 'N/A'}</td>
                             <td>${student['Timeattend'] || 'N/A'}</td>
+                            <td>${attendanceData[classname][id].count}</td>
                         `;
                         tableBody.appendChild(tr);
-                    });
+                    }
                 });
             });
         });
+    };
+});
     </script>
 </body>
 </html>

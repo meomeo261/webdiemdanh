@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .form-container {
+    border: 2px solid #000; /* Đường viền đen */
+    padding: 20px; /* Tạo khoảng cách bên trong */
+    border-radius: 10px; /* Bo góc viền */
+    width: fit-content; /* Đảm bảo khung viền bao quanh nội dung */
+    margin: auto; /* Căn giữa trang */
+    background-color: #f9f9f9; /* Nền nhạt giúp nổi bật */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+}
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <img src="/webdiemdanh/images/Logo.png" alt="Logo" class="logo">
+            <h1>Website Quản Lý Môn Học</h1>
+            <p id="welcomeMessage" style="font-size: 16px; color: green;"></p>
+        </div>
+    </header>
+
+    <!-- Navbar Section -->
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="danh-sach.html">Danh sách</a></li>
+            <li><a href="quan-ly.html">Quản lý</a></li>
+            <li><a href="taikhoan.html">Tài khoản</a></li>
+        </ul>
+    </nav>
+
+    <!-- Form thêm tài khoản Tutor -->
+    <section style="padding: 20px;">
+        <h2>Thêm Tài Khoản Tutor</h2>
+        <div class="form-container"> <!-- Thêm div này -->
+            <form id="addTutorForm">
+                <label for="tutorName">Tên:</label>
+                <input type="text" id="tutorName" placeholder="Nhập tên" required><br><br>
+                
+                <label for="tutorAcc">Tài khoản:</label>
+                <input type="text" id="tutorAcc" placeholder="Nhập tài khoản" required><br><br>
+                
+                <label for="tutorPass">Mật khẩu:</label>
+                <input type="password" id="tutorPass" placeholder="Nhập mật khẩu" required><br><br>
+                
+                <label for="tutorConfirmPass">Nhập lại mật khẩu:</label>
+                <input type="password" id="tutorConfirmPass" placeholder="Nhập lại mật khẩu" required><br><br>
+                
+                <button type="button" onclick="addTutorAccount()">Thêm Tài Khoản</button>
+                <p id="message" style="color:red;"></p>
+            </form>
+        </div> <!-- Kết thúc div -->
+    </section>
+    
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAzHYRX8XubkUURCmSirncq4uo4GK2S3E",
+            authDomain: "rfid-8555d.firebaseapp.com",
+            databaseURL: "https://rfid-8555d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rfid-8555d",
+            storageBucket: "rfid-8555d.appspot.com",
+            messagingSenderId: "464609357758",
+            appId: "1:464609357758:web:3a301b7ae7dff2ab3553ef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.addTutorAccount = function() {
+            const name = document.getElementById("tutorName").value.trim();
+            const acc = document.getElementById("tutorAcc").value.trim();
+            const pass = document.getElementById("tutorPass").value.trim();
+            const confirmPass = document.getElementById("tutorConfirmPass").value.trim();
+            const message = document.getElementById("message");
+            const letterRegex = /[a-zA-Z]/;
+
+            if (!name || !acc || !pass || !confirmPass) {
+                message.textContent = "Vui lòng nhập đầy đủ thông tin.";
+                return;
+            }
+
+            if (!letterRegex.test(acc)) {
+                message.textContent = "Tài khoản phải chứa ít nhất một chữ cái.";
+                return;
+            }
+
+            if (!letterRegex.test(pass)) {
+                message.textContent = "Mật khẩu phải chứa ít nhất một chữ cái.";
+                return;
+            }
+
+            if (pass !== confirmPass) {
+                message.textContent = "Mật khẩu không khớp.";
+                return;
+            }
+
+            const tutorRef = ref(database, `Tutor/${name}`);
+            get(tutorRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    message.textContent = "Tên đã tồn tại. Vui lòng nhập tên khác.";
+                } else {
+                    set(tutorRef, {
+                        acc: String(acc),
+                        pass: String(pass)
+                    }).then(() => {
+                        alert("Thêm tài khoản thành công!");
+                        document.getElementById("addTutorForm").reset();
+                        message.textContent = "";
+                    }).catch((error) => {
+                        console.error("Lỗi khi thêm tài khoản:", error);
+                        message.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+                    });
+                }
+            });
+        }
+
+        window.displayWelcomeMessage = function(username) {
+            document.getElementById("welcomeMessage").textContent = `Xin chào, ${username}!`;
+        }
+    </script>
+</body>
+</html>
